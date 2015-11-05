@@ -1,0 +1,23 @@
+\chapter{Conclusions and lines of work}
+
+This final section aims to conclude the work performed in this bachelor thesis project, underline the goals, experiences and impressions. In a second part of this conclusion, several lines of work are given for a future project based on this one. 
+
+\section{Conclusions}
+
+The major goal of this Bachelor Thesis was to implement a understandable and modular kernel dealing with a device on the bare metal level. It has been possible to implement more than what was initially planned. Several satisfying milestone were reached: Execute arbitrary code on the board, initialization of a serial connection with another device, dealing with graphic card concept and output data on the screen, handling input from a user and the most interesting one: Context switching. This later has been the hardest part if we exclude the initial study of the Raspberry Pi. Context switching are simple on the paper but harder to implement and overall to debug on a bare metal level, which make it even more satisfying when finally finding the solution.
+
+This project has been very interesting has many things weren't seen during the degree but many concepts of what has been studied could and have been be applied. The adventure through low level programming made me realize how interesting, yet difficult, this world is as there are no security policy or advanced debug tool to prevent the program to write on forbidden addresses. The whole process was a lot of study and research of the Raspberry Pi board, ARM processor, cross-compiler, assembler and more advanced concept of computer science. Finally, the implementation was a lot of trial and error mitigated by the automated functional testing from the library, which was impossible to be used when the code reached a too close-to-the-metal level. Testing on the board is impossible until having basic outputs (a blinking LED at first and finally serial outputs), debugging getting more easy as the tools are getting built.
+
+In the end, I believe that we can say that the initial goals of the project were reached with a satisfying outcome.
+
+
+\section{Future works}
+
+The project, although being a solid base, lacks of many functionality that modern operating systems employ.
+A main research direction is a feature that were planned at first was to develop Virtual Memory for the process, allowing them not to step on each other toes and overall to render safe a process from another one. This involves implementing a module translating the address from virtual memory to physical memory.
+
+Another direction is also the implementation of a file system. None is included in this project and every program or data need to be included within the kernel at compilation time, no data can be retrieved from the SD Card. This would require the implementation of a FAT-32 driver (the file system in which the SD Card needs to be formatted to in order allow the firmware to boot from it) in the kernel.
+
+The kernel is also devoid of USB support as it was too ambitious for the project, USB standards being more than 200 pages. An interesting feature would be to implement USB drivers in order to use an external keyboard or flash drive.
+
+Finally, there are no explicit system calls in the kernel, a good research direction would be to implement such feature into the kernel.

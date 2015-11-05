@@ -1,0 +1,8 @@
+.DS_Store
+*.o
+kernel.elf
+kernel.hex
+kernel.s
+obj/
+screenlog.0
+

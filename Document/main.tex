@@ -1,0 +1,121 @@
+\documentclass[10pt, a4paper]{Thesis}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{adjustbox}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{appendix}
+\usepackage{booktabs}
+\usepackage{cite}
+\usepackage{color}
+\usepackage{csquotes}
+\usepackage{dirtree}
+\usepackage{eurosym}
+\usepackage{float}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{listing}
+\usepackage{lmodern}
+\usepackage{rotating}
+\usepackage{subfigure}
+\usepackage{tikz}
+\usetikzlibrary{calc}
+\usepackage{titlesec}
+
+
+
+
+
+
+
+
+\setcounter{secnumdepth}{5}
+\setcounter{tocdepth}{5}
+
+\titleformat{\paragraph}[hang]{\normalfont\normalsize\bfseries}{\theparagraph}{1em}{}
+\titlespacing*{\paragraph}{0pt}{3.25ex plus 1ex minus .2ex}{0.5em}
+
+\interfootnotelinepenalty=10000	
+
+% Tikz configuration
+\usetikzlibrary{shapes,arrows}
+\tikzstyle{decision} = [diamond, draw, 
+    text width=4.5em, text badly centered, node distance=3cm, inner sep=0pt]
+\tikzstyle{block} = [rectangle, draw, 
+    text width=7em, text centered, rounded corners, minimum height=4em]
+\tikzstyle{line} = [draw, -latex']
+\tikzstyle{cloud} = [draw, ellipse, node distance=3cm,
+    minimum height=2em]
+ 
+% Listing configuration   
+\definecolor{mygreen}{rgb}{0,0.6,0}
+\definecolor{mygray}{rgb}{0.5,0.5,0.5}
+\definecolor{mymauve}{rgb}{0.58,0,0.82}
+\lstset{ %
+  backgroundcolor=\color{white},   % choose the background color
+  basicstyle=\footnotesize,        % size of fonts used for the code
+  breaklines=true,                 % automatic line breaking only at whitespace
+  captionpos=b,                    % sets the caption-position to bottom
+  commentstyle=\color{mygreen},    % comment style
+  escapeinside={\%*}{*)},          % if you want to add LaTeX within your code
+  keywordstyle=\color{blue},       % keyword style
+  stringstyle=\color{mymauve},     % string literal style
+}
+
+
+\hypersetup{
+    pdftitle={Jérôme Grossé - TFG - 2015},
+    pdfsubject={TFG - 2015},
+    pdfauthor={Jérôme Grossé},
+    pdfkeywords={Bachelor Thesis} {ARM} {Computer Science},
+    colorlinks,
+    citecolor=black,
+    filecolor=black,
+    linkcolor=black,
+    urlcolor=black,
+}
+  
+  
+\begin{document}
+
+
+
+\frontmatter
+\include{includes/tex/frontpage}
+\include{includes/tex/tribunal}
+\include{includes/tex/quote}
+\include{includes/tex/acknowledgements}
+\include{includes/tex/abstract}
+
+\tableofcontents
+\pagebreak
+
+\listoffigures
+\pagebreak
+
+\listoftables
+\pagebreak
+
+
+
+
+\mainmatter
+\include{includes/tex/chapter_1}
+\include{includes/tex/chapter_2}
+\include{includes/tex/chapter_3}
+\include{includes/tex/chapter_4}
+\include{includes/tex/chapter_5}
+\include{includes/tex/chapter_6}
+\include{includes/tex/chapter_7}
+\include{includes/tex/chapter_8}
+
+\backmatter
+\begin{appendices}
+\include{includes/tex/acronyms}
+\bibliography{includes/tex/bibliography}{}
+\bibliographystyle{plain}
+\end{appendices}
+
+\end{document}

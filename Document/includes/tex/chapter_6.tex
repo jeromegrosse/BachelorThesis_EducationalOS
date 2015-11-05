@@ -1,0 +1,580 @@
+\chapter{Testing}
+
+Across the whole development, two kind of testings has been used. It has been mentioned in the project description that a TDD was being used. Of course, this is not possible to perform unit or functional testing on the Kernel Core level due to the big amount of low-level interaction with board mostly performed in assembly. However, the test driven development has been performed on components of the Kernel Management Layer and Developper API. In addition to unit and functional testing, a process of manual testing has been performed, that is, testing the program manually through a series of use cases. The use cases performed for the testing are the exact same than the one described on section \ref{chapter4_use_cases} - Use Cases.
+
+The purpose of this chapter is the present the different tests performed as well as their outcome (i.e. If the tests passed or not).
+
+
+\section{Functional testing}
+
+Unit and functional testing are two kind of testing method. The Unit testing (also referred as white box testing) is the fact of testing a single function and any call to an external function/module has to be mocked. Functional testing (referred as black box testing) is the fact of testing a function as well as all the internal call as well. The function is tested by knowing what should be the outcome of calling such function with a given input on a given state and testing these outcomes.
+
+In order to perform to tests, a small library has been implemented that enable different kind of assertion as well as error counting and stack tracing (in order to know where the error has occurred). This library has been implemented in the file named \textit{base\_test.c} and present the following assertion:
+\begin{itemize}
+	\item \textbf{assert\_equals\_integer}: Takes two integer parameters and triggers an error if those two integers aren't equal.
+	\item \textbf{assert\_not\_equals\_integer}: Takes two integer parameters and triggers an error if those two integers are equal.
+	\item \textbf{assert\_equals\_string}: Takes two string parameters and triggers an error if those two strings aren't equal.
+\end{itemize}
+
+The library doesn't have any way of mocking variable or patching function call. Also some tests can look unitary (mainly the one testing stand-alone function that do not need the call of other function), we will also refer to those tests are functional tests.
+
+The source code of the tests are placed under the directory \textit{tests/} and following the following nomenclature:
+
+\textit{X\_test.c} where X is the name of the module being tested.
+
+During this section, the tests will be presented using the table below:
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{| p{3cm} | p{7cm} |}
+    \hline
+    \textbf{ID}             & ID of the functional test.\\ \hline
+    \textbf{Name}           & Name of the function in the test file.\\ \hline
+    \textbf{Description}    & Description of the feature(s) being tested. \\ \hline
+    \textbf{Post-conditions} & Conditions that are necessary for the correct realization of the functional test. \\ \hline
+    \textbf{Result}			 & Whether the test passed and fulfilled the post conditions.	 \\ \hline
+    \end{tabular}
+    \caption{Template for the functional testing.}
+\end{table}
+
+
+Below is the presentation of the performed tests for the given modules:
+
+
+\edef\functionalTestCounter{0}
+
+\subsection{Malloc}
+
+\pgfmathparse{\functionalTestCounter + 1}
+\pgfmathtruncatemacro{\functionalTestCounter}{\pgfmathresult}
+\begin{table}[H]
+    \centering
+    \begin{tabular}{| p{3cm} | p{7cm} |}
+    \hline
+    \textbf{ID}             & FT-\functionalTestCounter\\ \hline
+    \textbf{Name}           & memory\_test\_init \\ \hline
+    \textbf{Description}    & Test the function \textit{memory\_init}. The test first call the previous function and check for the correct value of \textit{heap\_top}, \textit{heap\_limit} and the \textit{heap\_list} \\ \hline
+    \textbf{Post-conditions} & 
+    	\begin{itemize}
+    	    	\item \textit{heap\_top} needs to be equal to the initial value of the heap
+    	    	\item \textit{heap\_limit} needs to be equal to the value of \textit{heap + 1024} (since 1KiB of data has been ask to \textit{memory\_init}
+    	    	\item \textit{heap\_list} needs to be set to zero as no dynamic allocation has been performed for now.
+    	\end{itemize}
+    \\ \hline
+    \textbf{Result}			 & \textcolor{mygreen}{Passed}	 \\ \hline
+    \end{tabular}
+    \caption{Functional Test FT-\functionalTestCounter: memory\_test\_init}
+\end{table}
+
+
+\pgfmathparse{\functionalTestCounter + 1}
+\pgfmathtruncatemacro{\functionalTestCounter}{\pgfmathresult}
+\begin{table}[H]
+    \centering
+    \begin{tabular}{| p{3cm} | p{7cm} |}
+    \hline
+    \textbf{ID}             & FT-\functionalTestCounter\\ \hline
+    \textbf{Name}           & memory\_test\_free\_and\_alloc \\ \hline
+    \textbf{Description}    & The feature being tested is the ability to reallocated a block that has been freed if the memory allocation asked is small than or equal to the freed block. To do so, five memory segments are allocated, the fourth one is freed and another memory segments is freed with a size lower than the freed memory segment.\\ \hline
+    \textbf{Post-conditions} & The memory address of the memory header of last memory segments allocated needs to be the same as the one that has been freed and the size has to be updated.  \\ \hline
+    \textbf{Result}			 & \textcolor{mygreen}{Passed}	\\ \hline
+    \end{tabular}
+    \caption{Functional Test FT-\functionalTestCounter: memory\_test\_free\_and\_alloc}
+\end{table}
+
+
+
+\pgfmathparse{\functionalTestCounter + 1}
+\pgfmathtruncatemacro{\functionalTestCounter}{\pgfmathresult}
+\begin{table}[H]
+    \centering
+    \begin{tabular}{| p{3cm} | p{7cm} |}
+    \hline
+    \textbf{ID}             & FT-\functionalTestCounter\\ \hline
+    \textbf{Name}           & memory\_test\_four\_alloc \\ \hline
+    \textbf{Description}    & After calling \textit{memory\_init}, four allocations are performed. After each of these allocation, tests are performed to check the correct value of the assigned block, the memory address returned and the correct reachability of the block from the \textit{heap\_top} \\ \hline
+    \textbf{Post-conditions} &
+    	At each allocation, the following tests are performed: 
+		\begin{itemize}
+			\item \textit{heap\_list} is not null (since an allocation has been performed)
+			\item The correct value has been returned by the \textit{memory\_alloc} function (i.e. The address of the writable memory).
+			\item The size of the control block of the returned writable memory has the \textit{allocated} field, the \textit{size} field and the \textit{next} correctly set.
+		\end{itemize}		    	
+    \\ \hline
+    \textbf{Result}			 & \textcolor{mygreen}{Passed}	 \\ \hline
+
+    \end{tabular}
+    \caption{Functional Test FT-\functionalTestCounter: memory\_test\_four\_alloc}
+\end{table}
+
+
+\pgfmathparse{\functionalTestCounter + 1}
+\pgfmathtruncatemacro{\functionalTestCounter}{\pgfmathresult}
+\begin{table}[H]
+    \centering
+    \begin{tabular}{| p{3cm} | p{7cm} |}
+    \hline
+    \textbf{ID}             & FT-\functionalTestCounter\\ \hline
+    \textbf{Name}           & memset\_test \\ \hline
+    \textbf{Description}    & Test of the function \textit{rpi\_memset} on a memory segment previously allocated. \\ \hline
+    \textbf{Post-conditions} & The memory needs to be correctly set to the value specified to the function on the memory address specified and for the provided length.  \\ \hline
+    \textbf{Result}			 & \textcolor{mygreen}{Passed}	\\ \hline
+
+    \end{tabular}
+    \caption{Functional Test FT-\functionalTestCounter: memset\_test}
+\end{table}
+
+
+
+
+
+
+\subsection{Strings}
+
+\pgfmathparse{\functionalTestCounter + 1}
+\pgfmathtruncatemacro{\functionalTestCounter}{\pgfmathresult}
+\begin{table}[H]
+    \centering
+    \begin{tabular}{| p{3cm} | p{7cm} |}
+    \hline
+    \textbf{ID}             & FT-\functionalTestCounter\\ \hline
+    \textbf{Name}           & itoa\_test \\ \hline
+    \textbf{Description}    & Test of the function \textit{rpi\_itoa} on a positive and a negative value. \\ \hline
+    \textbf{Post-conditions} & Correct string representation of the passed value whether it is positive or negative.  \\ \hline
+    \textbf{Result}			 & \textcolor{mygreen}{Passed}	\\ \hline
+
+    \end{tabular}
+    \caption{Functional Test FT-\functionalTestCounter: itoa\_test}
+\end{table}
+
+
+\pgfmathparse{\functionalTestCounter + 1}
+\pgfmathtruncatemacro{\functionalTestCounter}{\pgfmathresult}
+\begin{table}[H]
+    \centering
+    \begin{tabular}{| p{3cm} | p{7cm} |}
+    \hline
+    \textbf{ID}             & FT-\functionalTestCounter\\ \hline
+    \textbf{Name}           & rpi\_strlen\_test \\ \hline
+    \textbf{Description}    & Test of the function \textit{rpi\_strlen} with two null-ended strings, one being empty and the other having a non null number of characters. \\ \hline
+    \textbf{Post-conditions} & Correct count of character of both string.  \\ \hline
+    \textbf{Result}			 & \textcolor{mygreen}{Passed}	\\ \hline
+
+    \end{tabular}
+    \caption{Functional Test FT-\functionalTestCounter: rpi\_strlen\_test}
+\end{table}
+
+
+\pgfmathparse{\functionalTestCounter + 1}
+\pgfmathtruncatemacro{\functionalTestCounter}{\pgfmathresult}
+\begin{table}[H]
+    \centering
+    \begin{tabular}{| p{3cm} | p{7cm} |}
+    \hline
+    \textbf{ID}             & FT-\functionalTestCounter\\ \hline
+    \textbf{Name}           & itoh\_test \\ \hline
+    \textbf{Description}    & Test of the function \textit{rpi\_itoh} with two positive integers and one null. \\ \hline
+    \textbf{Post-conditions} & Correct representation of all three integers,whether they are positive or null.  \\ \hline
+    \textbf{Result}			 & \textcolor{mygreen}{Passed}	\\ \hline
+
+    \end{tabular}
+    \caption{Functional Test FT-\functionalTestCounter: itoh\_test}
+\end{table}
+
+
+\pgfmathparse{\functionalTestCounter + 1}
+\pgfmathtruncatemacro{\functionalTestCounter}{\pgfmathresult}
+\begin{table}[H]
+    \centering
+    \begin{tabular}{| p{3cm} | p{7cm} |}
+    \hline
+    \textbf{ID}             & FT-\functionalTestCounter\\ \hline
+    \textbf{Name}           & rpi\_sprintf\_test \\ \hline
+    \textbf{Description}    & Test of the function \textit{rpi\_sprintf} with four strings that have to be correctly formatted with different type of variable (string, integer and hexadecimal). The integer variable to be formatted into the string can be positive or negative.  \\ \hline
+    \textbf{Post-conditions} & Correct formatting of all four strings with the correct representation of the variable passed to the function.   \\ \hline
+    \textbf{Result}			 & \textcolor{mygreen}{Passed}	\\ \hline
+
+    \end{tabular}
+    \caption{Functional Test FT-\functionalTestCounter: rpi\_sprintf\_test}
+\end{table}
+
+
+\pgfmathparse{\functionalTestCounter + 1}
+\pgfmathtruncatemacro{\functionalTestCounter}{\pgfmathresult}
+\begin{table}[H]
+    \centering
+    \begin{tabular}{| p{3cm} | p{7cm} |}
+    \hline
+    \textbf{ID}             & FT-\functionalTestCounter\\ \hline
+    \textbf{Name}           & rpi\_strcpy\_test \\ \hline
+    \textbf{Description}    & Test of the function \textit{rpi\_strcpy} with three strings that have to be correctly copied to a dummy string. Each  with different length or feature to be copied. The first string is a regular string that we copied as such is the dummy string. The second one is the an empty string, the copy needs to be equally empty. On the third one, we want to copy a special location for a special length from with the string into the dummy. \\ \hline
+    \textbf{Post-conditions} & Correct copy for all three instances.  \\ \hline
+    \textbf{Result}			 & \textcolor{mygreen}{Passed}	\\ \hline
+
+    \end{tabular}
+    \caption{Functional Test FT-\functionalTestCounter: rpi\_strcpy\_test}
+\end{table}
+
+\pgfmathparse{\functionalTestCounter + 1}
+\pgfmathtruncatemacro{\functionalTestCounter}{\pgfmathresult}
+\begin{table}[H]
+    \centering
+    \begin{tabular}{| p{3cm} | p{7cm} |}
+    \hline
+    \textbf{ID}             & FT-\functionalTestCounter\\ \hline
+    \textbf{Name}           & rpi\_strcmp\_test \\ \hline
+    \textbf{Description}    & Test of the function \textit{rpi\_strcmp} with four tests, two that needs to returns equals, two that shouldn't be different. \begin{enumerate}
+    						\item Check two regular string (should return equal)
+    						\item Check two empty strings (should return equal)
+    						\item Check a regular string with a different regular string (should return different)
+    						\item Check a regular string with the empty string (should return different).
+						 \end{enumerate}\\ \hline
+    \textbf{Post-conditions} & Correct recognition of same and different strings  \\ \hline
+    \textbf{Result}			 & \textcolor{mygreen}{Passed}	\\ \hline
+
+    \end{tabular}
+    \caption{Functional Test FT-\functionalTestCounter: rpi\_strcmp\_test}
+\end{table}
+
+\pgfmathparse{\functionalTestCounter + 1}
+\pgfmathtruncatemacro{\functionalTestCounter}{\pgfmathresult}
+\begin{table}[H]
+    \centering
+    \begin{tabular}{| p{3cm} | p{7cm} |}
+    \hline
+    \textbf{ID}             & FT-\functionalTestCounter\\ \hline
+    \textbf{Name}           & rpi\_trim\_test \\ \hline
+    \textbf{Description}    & Test of the function \textit{rpi\_trim} with two strings, the first string don't have any leading and trailing space. The second one has both. The first one should be unafacted by the trimming function, the second one should see its leading and trailing spaces removed.\\ \hline
+    \textbf{Post-conditions} & Correct trimming of both strings. \\ \hline
+    \textbf{Result}			 & \textcolor{mygreen}{Passed}	\\ \hline
+
+    \end{tabular}
+    \caption{Functional Test FT-\functionalTestCounter: rpi\_strcmp\_test}
+\end{table}
+
+\pgfmathparse{\functionalTestCounter + 1}
+\pgfmathtruncatemacro{\functionalTestCounter}{\pgfmathresult}
+\begin{table}[H]
+    \centering
+    \begin{tabular}{| p{3cm} | p{7cm} |}
+    \hline
+    \textbf{ID}             & FT-\functionalTestCounter\\ \hline
+    \textbf{Name}           & get\_first\_word\_test \\ \hline
+    \textbf{Description}    & Test of the function \textit{rpi\_trim} with three strings: A regular string with not heading space, a string with leading spaces and an empty string. In the first two instances, the return string should be the first word of the string. In the last cases, the returned string should be the empty string.\\ \hline
+    \textbf{Post-conditions} & Correct trimming of both strings. \\ \hline
+    \textbf{Result}			 & \textcolor{mygreen}{Passed}	\\ \hline
+
+    \end{tabular}
+    \caption{Functional Test FT-\functionalTestCounter: get\_first\_word\_test}
+\end{table}
+
+
+
+
+
+
+\subsection{Queue}
+\pgfmathparse{\functionalTestCounter + 1}
+\pgfmathtruncatemacro{\functionalTestCounter}{\pgfmathresult}
+\begin{table}[H]
+    \centering
+    \begin{tabular}{| p{3cm} | p{7cm} |}
+    \hline
+    \textbf{ID}             & FT-\functionalTestCounter\\ \hline
+    \textbf{Name}           & queue\_init\_test \\ \hline
+    \textbf{Description}    & Test of the function \textit{queue\_init} with two positive integers and one null. \\ \hline
+    \textbf{Post-conditions} & Correct initialization of a queue with the correct initial value of the head, tail and size element.  \\ \hline
+    \textbf{Result}			 & \textcolor{mygreen}{Passed}	\\ \hline
+
+    \end{tabular}
+    \caption{Functional Test FT-\functionalTestCounter: queue\_init\_test}
+\end{table}
+
+
+\pgfmathparse{\functionalTestCounter + 1}
+\pgfmathtruncatemacro{\functionalTestCounter}{\pgfmathresult}
+\begin{table}[H]
+    \centering
+    \begin{tabular}{| p{3cm} | p{7cm} |}
+    \hline
+    \textbf{ID}             & FT-\functionalTestCounter\\ \hline
+    \textbf{Name}           & queue\_enqueue\_test \\ \hline
+    \textbf{Description}    & Test of the function \textit{queue\_enqueue} by enqueueing two elements. The values are checked first after the first enqueue, being sure that the head and tail are correctly set as well as the field of the unique node. Then the second element is enqueue and the value of the variable is checked expecting to have a queue with the correct values as well as for the node.\\ \hline
+    \textbf{Post-conditions} & Correct values at each steps of the test.  \\ \hline
+    \textbf{Result}			 & \textcolor{mygreen}{Passed}	\\ \hline
+
+    \end{tabular}
+    \caption{Functional Test FT-\functionalTestCounter: queue\_enqueue}
+\end{table}
+
+
+\pgfmathparse{\functionalTestCounter + 1}
+\pgfmathtruncatemacro{\functionalTestCounter}{\pgfmathresult}
+\begin{table}[H]
+    \centering
+    \begin{tabular}{| p{3cm} | p{7cm} |}
+    \hline
+    \textbf{ID}             & FT-\functionalTestCounter\\ \hline
+    \textbf{Name}           & queue\_dequeue\_test \\ \hline
+    \textbf{Description}    & Test of the function \textit{queue\_dequeue}. The tests consists in enqueuing two elements and then performing three dequeues. The two first dequeues are expected to return the correct values, which are checked. At the third dequeue, the queue is empty, the function is therefore supposed to return the \textit{NULL} value, which is checked. \\ \hline
+    \textbf{Post-conditions} & Correct values at each steps of the test.  \\ \hline
+    \textbf{Result}			 & \textcolor{mygreen}{Passed}	\\ \hline
+
+    \end{tabular}
+    \caption{Functional Test FT-\functionalTestCounter: itoh\_test}
+\end{table}
+
+
+\subsection{Scheduler}
+\pgfmathparse{\functionalTestCounter + 1}
+\pgfmathtruncatemacro{\functionalTestCounter}{\pgfmathresult}
+\begin{table}[H]
+    \centering
+    \begin{tabular}{| p{3cm} | p{7cm} |}
+    \hline
+    \textbf{ID}             & FT-\functionalTestCounter\\ \hline
+    \textbf{Name}           & create\_process\_test \\ \hline
+    \textbf{Description}    & Tests the function \textit{create\_process} by creating three processes and at each creation, tests the correct values in the pcb\_list queue. \\ \hline
+    \textbf{Post-conditions} & Correct initialization of a pcb\_list as well as the correct values for each process creation.  \\ \hline
+    \textbf{Result}			 & \textcolor{mygreen}{Passed}	\\ \hline
+
+    \end{tabular}
+    \caption{Functional Test FT-\functionalTestCounter: create\_process\_test}
+\end{table}
+
+\pgfmathparse{\functionalTestCounter + 1}
+\pgfmathtruncatemacro{\functionalTestCounter}{\pgfmathresult}
+\begin{table}[H]
+    \centering
+    \begin{tabular}{| p{3cm} | p{7cm} |}
+    \hline
+    \textbf{ID}             & FT-\functionalTestCounter\\ \hline
+    \textbf{Name}           & get\_next\_pcb\_test \\ \hline
+    \textbf{Description}    & Tests the function \textit{get\_next\_pcb} by creating three processes and then invoking the tested function. The function should always return the next PCB in the queue, or the first one when asking for the next PCB of the last PCB. \\ \hline
+    \textbf{Post-conditions} & Correct PCB returned for every PCB.\\ \hline
+    \textbf{Result}			 & \textcolor{mygreen}{Passed}	\\ \hline
+
+    \end{tabular}
+    \caption{Functional Test FT-\functionalTestCounter: get\_next\_pcb\_test}
+\end{table}
+
+
+\pgfmathparse{\functionalTestCounter + 1}
+\pgfmathtruncatemacro{\functionalTestCounter}{\pgfmathresult}
+\begin{table}[H]
+    \centering
+    \begin{tabular}{| p{3cm} | p{7cm} |}
+    \hline
+    \textbf{ID}             & FT-\functionalTestCounter\\ \hline
+    \textbf{Name}           & context\_switch\_test \\ \hline
+    \textbf{Description}    & Tests the function \textit{scheduler} by creating three processes and then invoking the tested function. The function is in charge of setting the \textit{current\_pcb} variable to the PCB to be schedule. We therefore test said feature.  \\ \hline
+    \textbf{Post-conditions} & Correct value of the \textit{current\_pcb} for each invocation of the \textit{scheduler} function.  \\ \hline
+    \textbf{Result}			 & \textcolor{mygreen}{Passed}	\\ \hline
+
+    \end{tabular}
+    \caption{Functional Test FT-\functionalTestCounter: context\_switch\_test}
+\end{table}
+
+
+
+
+
+
+\section{Validation Testing}
+
+As mention in the introduction of this chapter, further  test were performed during the realization of the project as it was not possible to have a code coverage of 100\% with the automated testing. This is why the entirety of the Use Cases have been tested, these tests are know as validation testing as they involve a user testing the feature using the same steps than the one defined in the use cases. The use cases are therefore executed and validated buy checking that the output match the post conditions of each use cases.
+
+During this section, the tests will be presented using the table below:
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{| p{3cm} | p{7cm} |}
+    \hline
+    \textbf{ID}             & ID of the validation test\\ \hline
+    \textbf{Name}           & Name of the validation test\\ \hline
+    \textbf{Result} 		 & Conditions that are necessary for the correct realization of the functional test. \\ \hline
+    \end{tabular}
+    \caption{Template for the validation testing.}
+\end{table}
+
+
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{| p{3cm} | p{7cm} |}
+    \hline\textbf{ID}       & VT-01 \\ \hline
+    \textbf{Name}           & System boot \\ \hline
+    \textbf{Result}         & \textcolor{mygreen}{Passed}\\ \hline
+    \end{tabular} 
+    \caption{Validation Test VT-01 - System boot }
+\end{table}
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{| p{3cm} | p{7cm} |}
+    \hline
+    \textbf{ID}             & VT-02 \\ \hline
+    \textbf{Name}           & Kernel compilation \\ \hline
+    \textbf{Result}         & \textcolor{mygreen}{Passed}\\ \hline
+    \end{tabular}
+    \caption{Validation Test VT-02 - Kernel compilation }
+\end{table}
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{| p{3cm} | p{7cm} |}
+    \hline
+    \textbf{ID}             & VT-03 \\ \hline
+    \textbf{Name}           & Kernel compilation \\ \hline
+    \textbf{Result}         & \textcolor{mygreen}{Passed}\\ \hline
+    \end{tabular}
+    \caption{Validation Test VT-03 - Kernel compilation }
+\end{table}
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{| p{3cm} | p{7cm} |}
+    \hline
+    \textbf{ID}             & VT-04 \\ \hline
+    \textbf{Name}           & ARM timer interrupt \\ \hline
+    \textbf{Result}         & \textcolor{mygreen}{Passed}\\ \hline
+    \end{tabular}
+    \caption{Validation Test VT-04 - ARM timer interrupt }
+\end{table}
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{| p{3cm} | p{7cm} |}
+    \hline
+    \textbf{ID}             & VT-05 \\ \hline
+    \textbf{Name}           & Context switching \\ \hline
+    \textbf{Result}         & \textcolor{mygreen}{Passed}\\ \hline
+    \end{tabular}
+    \caption{Validation Test VT-05 - Context switching }
+\end{table}
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{| p{3cm} | p{7cm} |}
+    \hline
+    \textbf{ID}             & VT-06 \\ \hline
+    \textbf{Name}           & Display an image on the screen\\ \hline
+    \textbf{Result}         & \textcolor{mygreen}{Passed}\\ \hline
+    \end{tabular}
+    \caption{Validation Test VT-06 - Display an image on the screen}
+\end{table}
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{| p{3cm} | p{7cm} |}
+    \hline
+    \textbf{ID}             & VT-07 \\ \hline
+    \textbf{Name}           & Create header picture\\ \hline
+    \textbf{Result}         & \textcolor{mygreen}{Passed}\\ \hline
+    \end{tabular}
+    \caption{Validation Test VT-07 - Create header picture}
+\end{table}
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{| p{3cm} | p{7cm} |}
+    \hline
+    \textbf{ID}             & VT-08 \\ \hline
+    \textbf{Name}           & Print strings on the serial port\\ \hline
+    \textbf{Result}         & \textcolor{mygreen}{Passed}\\ \hline
+    \end{tabular}
+    \caption{Validation Test VT-08 - Print strings on the serial port}
+\end{table}
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{| p{3cm} | p{7cm} |}
+    \hline
+    \textbf{ID}             & VT-09 \\ \hline
+    \textbf{Name}           & Print strings on the HDMI ports\\ \hline
+    \textbf{Result}         & \textcolor{mygreen}{Passed}\\ \hline
+    \end{tabular}
+    \caption{Validation Test VT-09 - Print strings on the HDMI ports}
+\end{table}
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{| p{3cm} | p{7cm} |}
+    \hline
+    \textbf{ID}             & VT-10 \\ \hline
+    \textbf{Name}           & Input data handling\\ \hline
+    \textbf{Result}         & \textcolor{mygreen}{Passed}\\ \hline
+    \end{tabular}
+    \caption{Validation Test VT-10 - Input data handling}
+\end{table}
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{| p{3cm} | p{7cm} |}
+    \hline
+    \textbf{ID}             & VT-11 \\ \hline
+    \textbf{Name}           & Line drawing\\ \hline
+    \textbf{Result}         & \textcolor{mygreen}{Passed}\\ \hline
+    \end{tabular}
+    \caption{Validation Test VT-11 - Line drawing}
+\end{table}
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{| p{3cm} | p{7cm} |}
+    \hline
+    \textbf{ID}             & VT-12 \\ \hline
+    \textbf{Name}           & Command-Line Interface\\ \hline
+    \textbf{Result}         & \textcolor{mygreen}{Passed}\\ \hline
+    \end{tabular}
+    \caption{Validation Test VT-12 - Command-Line Interface}
+\end{table}
+
+
+\section{Traceability Matrix}
+In this section we draw the traceability matrix between the Functional Tests, the Validation Tests and the Functional Requirement giving information of which test refers to which functional requirement.
+
+
+\begin{sidewaystable}
+\centering
+  \begin{adjustbox}{max width=\textwidth}
+  \begin{tabular}{| c | *{30}{c}|}
+    \hline
+            & FT-01 & FT-02 & FT-03 & FT-04 & FT-05 & FT-06 & FT-07 & FT-08 & FT-09 & FT-10 & FT-11 & FT-12 & FT-13 & FT-14 & FT-15 & FT-16 & FT-17 & FT-18 & VT-01 & VT-02 & VT-03 & VT-04 & VT-05 & VT-06 & VT-07 & VT-08 & VT-09 & VT-10 & VT-11 & VT-12   \\ \hline
+    FR-01   &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       & X     &       &       &       &       &       &       & X     & X     & X     & X     & X       \\ \hline
+    FR-02   &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       & X     &       &       &       &       &       & X     & X     & X     & X     & X       \\ \hline
+    FR-03   &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       & X     &       &       &       &       &       & X     & X     & X     & X     & X       \\ \hline
+    FR-04   &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       & X     & X     &       &       &       &       &       & X     & X     & X     & X     & X       \\ \hline
+    FR-05   &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       & X     & X     &       &       &       &       &       &       &         \\ \hline
+    FR-06   &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       & X     & X     &       &       &       &       &       &       &         \\ \hline
+    FR-07   &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       & X     &       & X     & X     &       &       &       &       &       &       &       &         \\ \hline
+    FR-08   &       &       &       &       & X     & X     & X     & X     & X     &       &       &       &       &       &       &       &       &       & X     & X     & X     & X     &       &       &       & X     & X     & X     &       & X       \\ \hline
+    FR-09   &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       & X     &       & X       \\ \hline
+    FR-10   &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       & X     &       &       &       &       &       &       &       & X     &         \\ \hline
+    FR-11   &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       & X     &       &       &       &       &       & X     &         \\ \hline
+    FR-12   &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       & X     &       &       &       &       & X     &       &       &       &       & X     &         \\ \hline
+    FR-13   &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       & X     &       &       &       &       & X     &       &       &       &       & X     &         \\ \hline
+    FR-14   &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       & X     &       &       &       &       & X     &       &       &       &       & X     &         \\ \hline
+    FR-15   &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       & X     &       &       &       &       & X     &         \\ \hline
+    FR-16   &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       & X     &         \\ \hline
+    FR-17   &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       & X     &         \\ \hline
+    FR-18   &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       & X     &       &       &         \\ \hline
+    FR-19   &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       & X     &       &       &         \\ \hline
+    FR-20   &       &       &       &       & X     & X     & X     & X     & X     & X     & X     & X     &       &       &       &       &       &       &       &       &       &       &       &       &       & X     &       &       &       &         \\ \hline
+    FR-21   &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       & X     &       &       &       &       &       &       &         \\ \hline
+    FR-22   & X     & X     & X     & X     &       &       &       &       &       &       &       &       &       &       &       &       &       &       & X     &       &       & X     & X     &       &       &       &       &       &       &         \\ \hline
+    FR-23   &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       & X     & X     &       &       &       &       &       &       &         \\ \hline
+    FR-24   & X     & X     & X     & X     &       &       &       &       &       &       &       &       & X     & X     & X     & X     & X     & X      &       &       &       &       & X     &       &       &       &       &       &       &         \\ \hline
+    FR-25   &       &       &       &       &       &       &       &       &       &       &       &       & X     & X     & X     & X     & X     & X      &       &       &       &       & X     &       &       &       &       &       &       &         \\ \hline
+    FR-26   &       &       &       &       &       &       &       &       &       &       &       &       & X     & X     & X     & X     & X     & X      &       &       &       &       & X     &       &       &       &       &       &       &         \\ \hline
+    FR-27   &       &       &       &       &       &       &       &       &       &       &       &       & X     & X     & X     & X     & X     & X     &       &       &       &       & X     &       &       &       &       &       &       &         \\ \hline
+    FR-28   &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       & X     &       &       &       &       &       &         \\ \hline
+    FR-29   &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &  X    &       &       &       &       &         \\ \hline
+    FR-30   &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       & X     & X     & X     & X     & X     &       &       &       &       & X     & X       \\ \hline
+    FR-31   &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       & X     &       &       &       &       &       &       &         \\ \hline
+    FR-32   &       &       &       &       &       &       &       &       &       & X     & X     & X     &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       &       & X       \\ \hline
+        \end{tabular}
+        \end{adjustbox}                                                                        
+\caption{Traceability matrix - Functional Requirement vs Tests.}
+\label{T:traceability_matrix_fr_vs_tests}
+\end{sidewaystable}

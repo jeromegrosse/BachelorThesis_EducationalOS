@@ -1,0 +1,89 @@
+\chapter{Introduction}
+
+\section{Motivation}
+
+Nowadays, we are surrounded by computers: Smart phones, laptops, desktops, cars, gaming consoles, tablets, calculators, clusters, embedded systems. These are all classes of devices that render the broad term of \textit{computer} poor of sense. For each of them, there are specific needs that has to be fulfilled to make them useful. Part of these needs are reflected through the processor architecture.
+
+During this lasts years, ARM (Advanced RISC Machines) has gained popularity as it is the CPU architecture of choice of every hand-held devices, the most sold devices\cite{gartner_mobile_grow}. It allows a low power consumption compared to other architecture like i386 with a great trade-off in computational power.
+
+
+\section{The Raspberry Pi}
+
+From Wikipedia\cite{wikipedia_raspberry_pi}
+
+\begin{displayquote}
+The Raspberry Pi is a series of credit card-sized single-board computers developed in the UK by the Raspberry Pi Foundation with the intention of promoting the teaching of basic computer science in schools.
+\end{displayquote}
+
+The Raspberry Pi has been designed by scientists from the University of Cambridge with their first commercial model released in 2012. The Raspberry Pi has been designed with a powerful optic in mind: The bring a fully-fledged cheap computer.
+
+The Raspberry Pi used for the bachelor thesis is the model B+ that includes on-the-go a GPU, a sounds card, an ARM11 CPU and a SD Card reader. Bellow is a table that sums up the specifications of said model:
+
+\begin{table}[h]\centering
+\begin{adjustbox}{width={\textwidth},totalheight={\textheight},keepaspectratio}%
+\renewcommand{\arraystretch}{0.5}% Tighter
+\begin{tabular}{ll}
+\toprule Technical Feature & Model B+ \\
+
+\midrule System on Chip & Broadcom BCM2835 SoC                                 \\
+\\ CPU                  & 700 MHz Low Power ARM1176J (ARMv6)                   \\
+\\ GPU                  & Dual Core VideoCore IV® Multimedia Co-Processor      \\
+\\ Memory               & 512MB SDRAM                                          \\
+\\ USB 2.0              & 4 x USB 2.0 Connector                                \\
+\\ Video Out            & HDMI (rev 1.3 and 1.4), Composite RCA (PAL and NTSC) \\
+\\ Audio Out            & 3.5mm jack, HDMI                                     \\
+\\ Storage              & SDIO                                                 \\
+\\ Network              & Ethernet                                             \\
+\\ Peripherals          & GPIO, Camera Connector, Display Connector            \\
+\\ Power Source         & Micro USB socket 5V, 2A or GPIO header               \\
+\\ Dimensions           & 85 x 56 x 17mm                                       \\
+
+\bottomrule
+\end{tabular}%
+\end{adjustbox}
+
+\caption{Specification of the Raspberry Pi Model B+}
+\end{table}
+
+The device is incredibly small and cheap for its capabilities, which makes it a device of choices for investigations and small projects. The Linux kernel (and therefore several distributions such as Debian or ArchLinux) has been ported to the Raspberry Pi. Several libraries have been implemented to control the hardware easily from the user space. Remarkable projects have already been made such as media centres\cite{osmc}, emulation distribution\cite{retropie}.
+
+
+\section{Research context}
+The context of this paper is the Bachelor Thesis (Trabajo de fin de Grado) in the University Carlos III de Madrid.
+
+
+\section{Main objectives}
+
+The goal of this research is to build from the ground up an educational kernel for the Raspberry Pi. The objective is not to propose a professionally made and usable OS but instead, propose an implementation with a clear code and explanation of an operating system usable on the Raspberry Pi. To do so, one of the main objective is to research the low level functioning of the hardware, that is, how things work and communicate on a bare-metal level as well as building a system on the studied hardware. The main guideline can be presented as following:
+
+\begin{itemize}
+\item \textbf{Analysis and understanding of the basics of the ARM architecture}: The ARM architecture is complex and presents tools and features for a wide range of use cases. We will mainly focus on the booting process as well as understanding how the different part of the Raspberry works (GPIO, Timers, GPU amongst other).
+\item \textbf{Building a kernel able to boot and execute a program}: The main goal of a kernel is to interact with the hardware of the device and getting things ready to execute some arbitrary code.
+\item \textbf{Hardware Drivers:} That is mostly to be able to use the other hardware besides the processor that the Raspberry Pi uses. A device is useless if it cannot interact with the outside world, the kernel should handle the output of data (using a screen and/or a serial cable) as well as being able to receive data from outside (keystrokes).
+\item \textbf{Memory management}: Allocating data given a size at run-time and returning an address to the process, this is pretty much implementing the UNIX's C function \textit{malloc}.
+\item \textbf{Threads management}: Creation of the context of thread and more generally of a process. This include being able to start, pause and terminate process as well as having independent stacks.
+\item \textbf{Threads scheduling}: Implementation of scheduling algorithms for the threads in order to achieve multitasking.
+\item \textbf{Interaction with the user:} In order not to have a black box devoid of life, the OS should be able to output data (show debug messages, display pictures on the screen or flash an LED) and handle inputs from the users (basic commands).
+\item \textbf{Multitasking}: The main goal of an OS is to allow multi-tasking, that is, offer the illusion that several taskw are executing at the same time while in fact each task is allocated a short amount of time before stopping its execution, executing the following task, etc.
+\end{itemize}
+
+
+\section{Document structure}
+In this section, the structure of the document as well as the different goal of each sections are explained outlining the main goals of each of them. It can be used as a road map for the reader.
+
+\begin{itemize}
+\item \textbf{Chapter 1 - Introduction}: This is the current chapter. This chapter describe the motivation and the context of this thesis as well as the objective, the description of the project and the introductions to the the organization of the document.
+\item \textbf{Chapter 2 - State of the art}: This refers to the current level of knowledge for a given subject. In this case, the subject is OS development and particularly, on a ARM device.
+\item \textbf{Chapter 3 - Developing Environment}: The chapter describes all the tools used for the realization of this study, from the hardware to the software as well as a short description and the reason of their use.
+\item \textbf{Chapter 4 - Project Description}: This chapter is the key to the whole project. It presents the general constraints as well as the requirement specifications, that is, the elicitation of the user requirements, functional requirements and non-functional requirements. It then proceeds to display different use cases and a traceability matrix.
+\item \textbf{Chapter 5 - Proposal}: This chapter presents the design that has been extracted from the requirements specifications, that is, the design of the all modules, relationship among them and what the function that each module contains are. It presents the organization of the kernel as well as explanation of its internal functioning. The chapter also presents the implementation of the kernel, that is, the explanation of some parts of the code that are necessary for comprehension of a module or the kernel itself.
+\item \textbf{Chapter 6 - Testing}: Chapter dedicated to the presentation of the tests performed to check the good functioning of the project, which are the automated functional tests implemented as well as the manual verification testings and their results.
+\item \textbf{Chapter 7 - Project Planning}: Chapter dedicated to the project planning and the resources consumption encompassing the time and money usage throughout the realization of the project.
+\item \textbf{Chapter 8 - Conclusions}: Final chapter presenting the conclusions drawn during the project. Future project lines are also proposed in this section in order to give ideas and possible improvements for the project.
+\end{itemize}
+
+In addition to these height chapter, two appendixes can be found:
+\begin{enumerate}
+	\item \textbf{Acronyms}: Acronyms used and defined in this document.
+	\item \textbf{Bibliography}: References used in this document.
+\end{enumerate}
